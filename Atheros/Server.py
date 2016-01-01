@@ -72,7 +72,7 @@ def main(*argv):
         # is different from that of previous data
 
         # Prevent duplicate data read on the bridgeclient before it's refeshed
-        if data is last_seen:
+        if data == last_seen:
             continue
 
         queue.put(data)
