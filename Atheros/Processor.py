@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 DataProcessor.py
 
@@ -17,6 +15,8 @@ import Queue
 import threading
 import logging
 import time
+
+from GPS import Parser
 
 global queue
 
@@ -51,3 +51,16 @@ class DataProcessor(threading.Thread):
     def process(self, data):
         print 'Processing -->', data
         self.log.info('Processing {data}'.format(data=data))
+
+        # c = Parser.parse(data)
+
+        # print 'UTC Time:', c.Utc
+        # print 'Latitute:', c.Latitute
+        # print 'Longitude:', c.Longitude
+        # print 'FixQuality:', c.FixQuality
+        # print 'Satellites:', c.Satellites
+        # print 'Dilution:', c.Dilution
+        # print 'Altitude:', c.Altitude
+        # print 'Height:', c.Height
+        # print 'Since DGPS update:', c.DGPS_update
+        # print 'DGPS station Id:', c.DGPS_Id

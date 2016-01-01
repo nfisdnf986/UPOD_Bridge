@@ -18,22 +18,26 @@ import os
 # import path
 sys.path.insert(0, '/usr/lib/python2.7/bridge')  
 
-import logging
-import logging.config
-
 import Queue
 import time
 import signal
 import threading
+import logging
+import logging.config
 
+from datetime import datetime
 from Processor import DataProcessor, queue
 from bridgeclient import BridgeClient as bridgeclient
 
 # set up the logging
 print('Setting up logging module...')
 basepath = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-logging.config.fileConfig('%s/logging.conf' % basepath)
-print basepath
+
+logging.config.fileConfig('%s/logging.conf' % basepath,
+                          defaults = {'logfilename':
+                                      # server_Hour_minutes_day_month_year.log
+                                      datetime.now().strftime('server_%H_%M_%d_%m_%Y.log')
+                          })
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +47,9 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 def main(*argv):
+    # set the current thread id
+    threading.current_thread().name = 'Server-Thread'
+
     # install signal handler
     signal.signal(signal.SIGINT, signal_handler)
     log.info('Installed signal handler')
@@ -54,14 +61,13 @@ def main(*argv):
     processor = DataProcessor(name='DataProcessor-Thread', event=event)
     processor.start()
 
+    # get communication channel to ATMega
+    channel = bridgeclient()    
     # TODO: Explore BridgeClient code
     # Performance: keep the socket open while subsequent get(...) operations
     # By default BridgeClient open socket at begin of get(...) and closes after get(...)
     # self.should_close_at_function_end = False
 
-    # get communication channel to ATMega
-    channel = bridgeclient()
-    
     last_seen = ''
     # Get data from the Tx-channel and post it the queue
     while True:
@@ -73,7 +79,7 @@ def main(*argv):
 
         # Prevent duplicate data read on the bridgeclient before it's refeshed
         if data == last_seen:
-            continue
+           continue
 
         queue.put(data)
         last_seen = data
@@ -82,5 +88,4 @@ def main(*argv):
 
 
 if __name__ == '__main__':
-    threading.current_thread().name = 'Server-Thread'
     main(sys.argv)
