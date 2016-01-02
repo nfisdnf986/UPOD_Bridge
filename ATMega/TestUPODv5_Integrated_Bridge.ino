@@ -102,12 +102,7 @@ void loop() {
 
   //Get time from RTC
   DateTime now = RTC.now();
-  for (int i = 1; i <= 16; i++) {
-    if (i <= 4) data += alpha_one.GetValue(i) + delimiter;
-    else if (i <= 8) data += alpha_two.GetValue(i - 4) + delimiter;
-    else if (i <= 12) data += ads1.readADC_SingleEnded(i - 9) + delimiter;
-    else if (i <= 16) data += ads2.readADC_SingleEnded(i - 13) + delimiter;
-  }
+
 
   //Get SHT data
   const byte temp_command = B11100011;
@@ -143,11 +138,19 @@ void loop() {
     P = -99;
   }
 
-  data += T + delimiter + P + delimiter + String(now.unixtime()) + delimiter +
+  data += String(now.unixtime()) + delimiter + T + delimiter + P + delimiter +
           temperature_SHT + delimiter + humidity_SHT + delimiter +
           String(getS300CO2()) + delimiter + String(get_wind_speed()) +
           delimiter + String(analogRead(A0)) + delimiter;
-
+          
+  //Read ADCs on-board and on-Quadstat
+  for (int i = 1; i <= 16; i++) {
+    if (i <= 4) data += alpha_one.GetValue(i) + delimiter;
+    else if (i <= 8) data += alpha_two.GetValue(i - 4) + delimiter;
+    else if (i <= 12) data += ads1.readADC_SingleEnded(i - 9) + delimiter;
+    else if (i <= 16) data += ads2.readADC_SingleEnded(i - 13) + delimiter;
+  }
+  
   //Get GPS data
   // if millis() or timer wraps around, we'll just reset it
   if (timer > millis())  timer = millis();
