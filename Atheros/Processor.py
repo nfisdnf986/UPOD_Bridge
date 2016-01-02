@@ -49,7 +49,7 @@ class DataProcessor(threading.Thread):
             self.process(data)
 
     def process(self, data):
-        print 'Processing -->', data
+        # print 'Processing -->', data
         self.log.info('Processing {data}'.format(data=data))
 
         # c = Parser.parse(data)

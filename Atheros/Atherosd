@@ -1,0 +1,33 @@
+#!/bin/sh /etc/rc.common
+# Atherosd script
+# Copyright (C) 2016 Arduino UPOD
+# Author: Sunil <suba5417@colorado.edu>
+
+START=97
+
+PIDFILE=/var/run/atherosd.pid
+LOGFILE=/var/log/atherosd.log
+
+start() {
+    if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
+	echo 'Service already running' > $LOGFILE
+	return 1
+    fi
+    echo 'Starting service Atherosd' > $LOGFILE
+    # launch application
+    chdir /root
+    python /root/Server.py &
+    echo $! > $PIDFILE
+    echo 'Service started' > $LOGFILE
+}                 
+
+stop() {
+    # Stop application
+    if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
+	echo 'Service not running'  > $LOGFILE
+	return 1
+    fi
+    echo 'Stopping service Atherosd' > $LOGFILE
+    kill -15 $(cat "$PIDFILE") && rm -f "$PIDFILE"
+    echo 'Service stopped' > $LOGFILE
+}

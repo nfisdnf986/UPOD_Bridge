@@ -30,7 +30,7 @@ from Processor import DataProcessor, queue
 from bridgeclient import BridgeClient as bridgeclient
 
 # set up the logging
-print('Setting up logging module...')
+# print('Setting up logging module...')
 basepath = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
 
 logging.config.fileConfig('%s/logging.conf' % basepath,
@@ -71,19 +71,23 @@ def main(*argv):
     last_seen = ''
     # Get data from the Tx-channel and post it the queue
     while True:
-        data = channel.get('TX-channel')
+        try:
+            data = channel.get('TX-channel')
 
-        # Time stamp is a part of data contract between
-        # ATMega and Atheros. This makes sure that data
-        # is different from that of previous data
+            # Time stamp is a part of data contract between
+            # ATMega and Atheros. This makes sure that data
+            # is different from that of previous data
 
-        # Prevent duplicate data read on the bridgeclient before it's refeshed
-        if data == last_seen:
-           continue
+            # Prevent duplicate data read on the bridgeclient before it's refeshed
+            if data == last_seen:
+                continue
 
-        queue.put(data)
-        last_seen = data
-        event.set()
+            queue.put(data)
+            last_seen = data
+            event.set()
+        except Exception, e:
+            log.exception(e)
+
         time.sleep(.7)
 
 
