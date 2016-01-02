@@ -7,8 +7,6 @@
 #include <mcp3424.h>
 #include <Adafruit_ADS1015.h>
 
-#define DEBUG
-
 SoftwareSerial GPS(8, 9);
 RTC_DS3231 RTC;
 
@@ -16,24 +14,23 @@ RTC_DS3231 RTC;
 Adafruit_ADS1115 ads1;
 Adafruit_ADS1115 ads2(B1001001);
 int ADC1;
-//int ADC2;
 
 //Quadstat ADC instances and variables
 mcp3424 alpha_one;
 mcp3424 alpha_two;
 float alpha_value;
 
-//BMP Temp and PreGPSure Variables
+//BMP Temp and Pressure Variables
 SFE_BMP180 BMP;
 
 //SHT2 Temp and Humidity Variables
 unsigned int temperature_board, humidity_board;
-String delimiter = "|";
 
 //Interrupt for GPS
-boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 uint32_t timer = millis();
+String gps_data;
+bool gps_available = false;
 
 //Wind direction sensor(Potentiometer) on analog pin 0
 const byte WDIR = A0;
@@ -42,6 +39,9 @@ const byte WDIR = A0;
 long lastWindCheck = 0;
 volatile long lastWindIRQ = 0;
 volatile byte windClicks = 0;
+
+//Data delimieter for Bridge string
+String delimiter = "#";
 
 // Function called anemometer interrupt (2 ticks per rotation), attached to input D4
 void wspeedIRQ()
@@ -63,11 +63,11 @@ void setup() {
   BMP.begin();
   ads1.begin();
   ads2.begin();
+  
   alpha_one.GetAddress('G', 'F'); //user defined address for the alphasense pstat array (4-stat)
   alpha_two.GetAddress('H', 'H') ;
   attachInterrupt(4, wspeedIRQ, FALLING); //anemometer reed switch on pin 7--> interrupt# 4
   useInterrupt(true);
-
   GPS.println("$PTNLSNM,0001,02"); //AddreGPS for GGA outputs. $PTNLSNM,0021,02 for GGA and ZDA
   delay(500);
   GPS.println("$PTNLSNM,0001,02");//AddreGPS for RMC and GGA outputs. "$PTNLSNM,0101,02"
@@ -79,79 +79,43 @@ void useInterrupt(boolean v) {
     // in the middle and call the "Compare A" function above
     OCR0A = 0xAF;
     TIMSK0 |= _BV(OCIE0A);
-    usingInterrupt = true;
   } else {
     // do not call the interrupt function COMPA anymore
     TIMSK0 &= ~_BV(OCIE0A);
-    usingInterrupt = false;
   }
 }
-
-String gps_data;
-bool gps_available = false;
 
 // Interrupt is called once a millisecond, looks for any new GPS data, and stores it
 SIGNAL(TIMER0_COMPA_vect) {
   if (GPS.available()) {
     char c = GPS.read();
-//    Serial.print(c);
+    //    Serial.print(c);
     if (!gps_available) {
       gps_data += c;
-      if (c == '\n') {
-        gps_available = true;
-      }
+      if (c == '\n') gps_available = true;
     }
   }
 }
 
 void loop() {
-  int Beforetimer = 0;
-  int AfterTimer = 0;
-  Beforetimer = millis();
   String data;
 
   //Get time from RTC
   DateTime now = RTC.now();
-
-  //Get Quadstat data - In microVolts
-  alpha_value = alpha_one.GetValue(1);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_one.GetValue(2);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_one.GetValue(3);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_one.GetValue(4);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_two.GetValue(1);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_two.GetValue(2);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_two.GetValue(3);
-  data += alpha_value + delimiter;
-  alpha_value = alpha_two.GetValue(4);
-  data += alpha_value + delimiter;
-
-  //Get ads1 data - Converted to voltage and resistance on Atheros
-  ADC1 = ads1.readADC_SingleEnded(1);
-  data += ADC1 + delimiter;
-  ADC1 = ads1.readADC_SingleEnded(2);
-  data += ADC1 + delimiter;
-  ADC1 = ads1.readADC_SingleEnded(3);
-  data += ADC1 + delimiter;
-  ADC1 = ads1.readADC_SingleEnded(4);
-  data += ADC1 + delimiter;
-
-  //Get ads2 data - Converted to voltage and resistance on Atheros
-  ADC1 = ads2.readADC_SingleEnded(1);
-  data += ADC1 + delimiter;
-  ADC1 = ads2.readADC_SingleEnded(2);
-  data += ADC1 + delimiter;
-  ADC1 = ads2.readADC_SingleEnded(3);
-  data += ADC1 + delimiter;
-  ADC1 = ads2.readADC_SingleEnded(4);
+  for (int i = 1; i <= 16; i++) {
+    if (i <= 4) data += alpha_one.GetValue(i) + delimiter;
+    else if (i <= 8) data += alpha_two.GetValue(i - 4) + delimiter;
+    else if (i <= 12) data += ads1.readADC_SingleEnded(i - 9) + delimiter;
+    else if (i <= 16) data += ads2.readADC_SingleEnded(i - 13) + delimiter;
+  }
 
   //Get SHT data
-  get_SHT2x();
+  const byte temp_command = B11100011;
+  const byte hum_command = B11100101;
+  temperature_board = read_wire(temp_command);
+  humidity_board = read_wire(hum_command);
+  float humidity_SHT = ((125 * (float)humidity_board) / (65536)) - 6.00;
+  float temperature_SHT = ((175.72 * (float)temperature_board) / (65536)) - 46.85;
 
   //Get BMP data
   double T, P;
@@ -180,8 +144,8 @@ void loop() {
   }
 
   data += T + delimiter + P + delimiter + String(now.unixtime()) + delimiter +
-          temperature_board + delimiter + humidity_board + delimiter +
-          String(getS300CO2()) + delimiter + String(get_wind_speed()) + 
+          temperature_SHT + delimiter + humidity_SHT + delimiter +
+          String(getS300CO2()) + delimiter + String(get_wind_speed()) +
           delimiter + String(analogRead(A0)) + delimiter;
 
   //Get GPS data
@@ -197,23 +161,18 @@ void loop() {
   }
 
   //DEBUG Serial print and send data to Atheros over Bridge
-  //Serial.println(data);
+  Serial.println(data);
   Bridge.put("TX-channel", data);
-  AfterTimer = millis();
-  Serial.println("Time " + String(AfterTimer - Beforetimer));
   //QuadStat takes 11 seconds to sample. No need for delay in main loop
-  //delay(500);
 }
 
 float getS300CO2()
 {
   int i = 1;
   long reading;
-  float CO2val;
-  Wire.beginTransmission(0x31);
-  Wire.write(0x52);
-  Wire.endTransmission();
-  Wire.requestFrom(0x31, 7);
+  //float CO2val;
+  wire_setup(0x31, 0x52, 7);
+
   while (Wire.available())
   {
     byte val = Wire.read();
@@ -230,46 +189,31 @@ float getS300CO2()
   }
 
   //Shift Calculation to Atheros
-  //  CO2val = reading / 4095.0 * 5000.0;
-  //  CO2val = reading;
-  return CO2val;
+  //    CO2val = reading / 4095.0 * 5000.0;
+  //    CO2val = reading;
+  return reading;
 }
 
-void get_SHT2x()
-{
+void wire_setup(int address, byte cmd, int from) {
+  Wire.beginTransmission(address);
+  Wire.write(cmd);
+  Wire.endTransmission();
+  Wire.requestFrom(address, from);
+}
+
+unsigned int read_wire(byte cmd) {
   const int SHT2x_address = 64;
   const byte mask = B11111100;
-  const byte temp_command = B11100011;
-  const byte hum_command = B11100101;
-  byte TEMP_byte1, TEMP_byte2, TEMP_byte3;
-  byte HUM_byte1, HUM_byte2, HUM_byte3;
-  byte check1, check2;
+  byte byte1, byte2, byte3;
 
-  Wire.beginTransmission(SHT2x_address);
-  Wire.write(temp_command);
-  check1 = Wire.endTransmission();
+  wire_setup(SHT2x_address, cmd, 3);
 
-  Wire.requestFrom(SHT2x_address, 3);
+  byte1 = Wire.read();
+  byte2 = Wire.read();
+  byte3 = Wire.read();
 
-  TEMP_byte1 = Wire.read();
-  TEMP_byte2 = Wire.read();
-  TEMP_byte3 = Wire.read();
-
-  Wire.beginTransmission(SHT2x_address);
-  Wire.write(hum_command);
-  check2 = Wire.endTransmission();
-
-  Wire.requestFrom(SHT2x_address, 3);
-  HUM_byte1 = Wire.read();
-  HUM_byte2 = Wire.read();
-  HUM_byte3 = Wire.read();
-
-  humidity_board = ( (HUM_byte1 << 8) | (HUM_byte2) & mask ); //HUM_byte1 shifted left by 1 byte, (|) bitwise inclusize OR operator
-  temperature_board = ( (TEMP_byte1 << 8) | (TEMP_byte2) & mask );
-
-  //Shift calculation to Atheros
-  //  humidity_SHT = ((125 * (float)humidity_board) / (65536)) - 6.00;
-  //  temperature_SHT = ((175.72 * (float)temperature_board) / (65536)) - 46.85;
+  //HUM_byte1 shifted left by 1 byte, (|) bitwise inclusize OR operator
+  return ( (byte1 << 8) | (byte2) & mask );
 }
 
 //Returns the instataneous wind speed
