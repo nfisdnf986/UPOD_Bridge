@@ -1,0 +1,44 @@
+Text File Header:
+Date Time(UTC), BMP Temp(C), BMP Pres(mb), SHT22 Temp(C), SHT22??? Pres(?), CO2(ADC val), Wind Speed(mph),
+Wind Direction(Deg), Quad_Aux1 (microV), Quad_Main1(microV), Quad_Aux2(microV), Quad_Main2(microV),
+Quad_Aux3(microV), Quad_Main3(microV), Quad_Aux4(microV), Quad_Main4(microV), Fig210 Heat ADC(0-65535),
+Fig210 Heat(mV), Fig210 Sens ADC val(0-65535), Fig210 Sens(mV), Fig280 Heat ADC(0-65535), Fig280 Heat(mV),
+Fig280 Sens ADC(0-65535),Fig280 Sens(mV), BL Mocoon Sens ADC(0-65535), BL Mocoon Sens(mV), ADC2 Channel 2 - EMPTY,
+e2vO3 Heat ADC(0-65535), e2vO3 Heat (mV), e2vO3 Sens ADC(0-65535), e2vO3 Sens (mV)
+
+Conversions:
+1) Unix time to UTC/GMT
+import datetime
+datetime.datetime.utcfromtimestamp(-----PUT UNIX TIME STAMP HERE-----)
+
+2) ADC1 and ADC2 on-board - convert ADC value to millivolts:
+//0.1875 mV per bit. The default gain on ADC is +/-6.144 volts.
+//The 16 bit ADC (1 drops out, acutally 15) corresponds to 32,786 possible output values(2^15).
+milliVolts = ADC_value * 0.1875 
+
+3) QuadStat - No conversions need, already in microVolts
+
+4) Wind direction
+	// The following table is ADC readings for the wind direction sensor output, sorted from low to high.
+	// Each threshold is the midpoint between adjacent headings. The output is degrees for that ADC reading.
+	// Note that these are not in compass degree order! See Weather Meters datasheet for more information.
+
+	if (adc < 380) return (113);
+	if (adc < 393) return (68);
+	if (adc < 414) return (90);
+	if (adc < 456) return (158);
+	if (adc < 508) return (135);
+	if (adc < 551) return (203);
+	if (adc < 615) return (180);
+	if (adc < 680) return (23);
+	if (adc < 746) return (45);
+	if (adc < 801) return (248);
+	if (adc < 833) return (225);
+	if (adc < 878) return (338);
+	if (adc < 913) return (0);
+	if (adc < 940) return (293);
+	if (adc < 967) return (315);
+	if (adc < 990) return (270);
+	return (-1); // error, disconnected?
+	
+5)
