@@ -1,10 +1,12 @@
 Text File Header:
-Date Time(UTC), BMP Temp(C), BMP Pres(mb), SHT22 Temp(C), SHT22??? Pres(?), CO2(ADC val), Wind Speed(mph),
+RTC Date YY.MM.DD, RTC Time HH:MM:SS (UTC), BMP Temp(C), BMP Pres(mb), SHT22 Temp(C), SHT22??? Pres(?), CO2(ADC val), Wind Speed(mph),
 Wind Direction(Deg), Quad_Aux1 (microV), Quad_Main1(microV), Quad_Aux2(microV), Quad_Main2(microV),
 Quad_Aux3(microV), Quad_Main3(microV), Quad_Aux4(microV), Quad_Main4(microV), Fig210 Heat ADC(0-65535),
 Fig210 Heat(mV), Fig210 Sens ADC val(0-65535), Fig210 Sens(mV), Fig280 Heat ADC(0-65535), Fig280 Heat(mV),
 Fig280 Sens ADC(0-65535),Fig280 Sens(mV), BL Mocoon Sens ADC(0-65535), BL Mocoon Sens(mV), ADC2 Channel 2 - EMPTY,
-e2vO3 Heat ADC(0-65535), e2vO3 Heat (mV), e2vO3 Sens ADC(0-65535), e2vO3 Sens (mV)
+e2vO3 Heat ADC(0-65535), e2vO3 Heat (mV), e2vO3 Sens ADC(0-65535), e2vO3 Sens (mV), GPS time Date YY.MM.DD,
+GPS Time HH:MM:SS (UTC), Latititude Coord, Latitude North/South, Longitude Coord, Longitude East/West,
+GPS Fix Quality, GPS Altitude(m above Sealevel), Satellites
 
 Conversions:
 1) Unix time to UTC/GMT
