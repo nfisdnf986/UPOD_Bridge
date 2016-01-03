@@ -40,5 +40,3 @@ milliVolts = ADC_value * 0.1875
 	if (adc < 967) return (315);
 	if (adc < 990) return (270);
 	return (-1); // error, disconnected?
-	
-5)
