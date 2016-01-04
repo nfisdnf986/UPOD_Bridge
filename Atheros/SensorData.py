@@ -28,15 +28,15 @@ class SensorData(object):
         self.BmpTemperature = float(tokens[1])
         self.BmpPressure = float(tokens[2])
 
-        self.ShtTemperature = float(tokens[3])
-        self.ShtPressure = float(tokens[4])
+        self.Sht25Temperature = float(tokens[3])
+        self.Sht25Humidity = float(tokens[4])
 
         self.CO2 = float(tokens[5])
 
         self.WindSpeed = float(tokens[6])
         self.WindDirection = self.ConvertWindDirection(tokens[7])
 
-        self.Quad_Aux1 = self._get_QuatStat_value([8])
+        self.Quad_Aux1 = self._get_QuatStat_value(tokens[8])
         self.Quad_Aux2 = self._get_QuatStat_value(tokens[10])
         self.Quad_Aux3 = self._get_QuatStat_value(tokens[12])
         self.Quad_Aux4 = self._get_QuatStat_value(tokens[14])
@@ -50,9 +50,9 @@ class SensorData(object):
         self.Fig210_Sens = self._get_ADC_value(tokens[17])
         self.Fig280_Heat =  self._get_ADC_value(tokens[18])
         self.Fig280_Sens = self._get_ADC_value(tokens[19])
-        self.BL_Mocoon_Sens = self._get_ADC_value(tokens[20])
+        self.BL_Mocon_Sens = self._get_ADC_value(tokens[20])
         self.Adc2_Channel_2 = self._get_ADC_value(tokens[21])
-        self.E2VO3_Heat = self_get_ADC_value(tokens[22])
+        self.E2VO3_Heat = self._get_ADC_value(tokens[22])
         self.E2VO3_Sens = self._get_ADC_value(tokens[23])
         self.GpsData = self._get_gps_data(tokens[24])
 
@@ -61,7 +61,7 @@ class SensorData(object):
             log.error('Gps data is empty. GPS signal is weak maybe!')
             return None
 
-        gps = Parser.parse(gps_tokens)
+        gps = Parser.parse(str(gps_data))
         return gps
 
     def _get_QuatStat_value(self, data):
@@ -78,16 +78,17 @@ class SensorData(object):
 
         return float(data) * MILLIVOLTS_PER_BIT
 
-    def _get_Unix2UTC_date(RTC_token):
+    def _get_Unix2UTC_date(self, RTC_token):
         return datetime.datetime.fromtimestamp(RTC_token).strftime('%Y-%m-%d')
 
-    def _get_Unix2UTC_time(RTC_token):
+    def _get_Unix2UTC_time(self, RTC_token):
         return datetime.datetime.fromtimestamp(RTC_token).strftime('%H:%M:%S')
 
-    def ConvertWindDirection(WindDirectionToken):
+    def ConvertWindDirection(self, WindDirectionToken):
         # The following table is ADC readings for the wind direction sensor output, sorted from low to high.
 	# Each threshold is the midpoint between adjacent headings. The output is degrees for that ADC reading.
 	# Note that these are not in compass degree order! See Weather Meters datasheet for more information.
+        adc = int(WindDirectionToken)
         if adc < 380:
             return 113
         if adc < 393:

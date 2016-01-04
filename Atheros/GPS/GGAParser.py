@@ -20,9 +20,11 @@ class GGAParser(object):
     def __init__(self):
         self.log = logging.getLogger(__name__)
         # Fix taken at UTC
+        self.UtcDate = None
+        self.UtcTime = None
         self.Utc = None
         
-        self.Latitute = None
+        self.Latitude = None
         self.Longitude = None
 
         # Fix quality:
@@ -51,8 +53,6 @@ class GGAParser(object):
         self.DGPS_Id = None
 
     def _get_utc(self, data):
-        number = int(data)
-        utc = ''
         return data
 
     def _get_latitide(self, data, direction):
@@ -82,12 +82,11 @@ class GGAParser(object):
     def _get_DGPS_Id(self, data):
         pass
 
-    def parse(self, gpsdata):
-        tokens = gpsdata.split(',')
+    def parse(self, tokens):
         self.log.info(len(tokens))
         self.log.info('GGA parsing string = {data}'.format(data = tokens))
         self.Utc = self._get_utc(tokens[1])
-        self.Latitute = self._get_latitide(tokens[2], tokens[3])
+        self.Latitude = self._get_latitide(tokens[2], tokens[3])
         self.Longitude = self._get_longitude(tokens[4], tokens[5])
         self.FixQuality = self._get_fixquality(tokens[6])
         self.Satellites = self._get_satellites(tokens[7])

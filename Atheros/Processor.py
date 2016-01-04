@@ -16,13 +16,20 @@ import threading
 import logging
 import time
 
-from GPS import Parser
+from datetime import datetime
+from SensorData import SensorData
+from CsvWriter import CsvWriter
+# from pprint import pprint
 
 global queue
+
+log = logging.getLogger(__name__)
+
 
 BUFFSIZE = 1000
 queue = Queue.Queue(BUFFSIZE)
 DELIMITER = '#'
+
 
 class DataProcessor(threading.Thread):
     """
@@ -35,7 +42,8 @@ class DataProcessor(threading.Thread):
         self.name = name
         self.setDaemon(True)
         self.event = event
-        self.log = logging.getLogger(__name__)
+        self.CsvFileCreated = False
+        self.file = None
 
     def run(self):
         # get data and process it
@@ -46,6 +54,12 @@ class DataProcessor(threading.Thread):
                 self.event.wait()
 
             data = queue.get()
+            
+            # Stop gap fix for csv writer
+            if not self.CsvFileCreated:
+                self.file = CsvWriter(datetime.fromtimestamp(float(data[0])).strftime('UPODXX%d%m%y.csv'))
+                self.CsvFileCreated = True
+
             self.process(data)
 
     def process(self, data):
@@ -53,7 +67,11 @@ class DataProcessor(threading.Thread):
         if not data:
             return
 
-        # print 'Processing -->', data
-        self.log.info('Processing {data}'.format(data=data))
+        log.info('Processing {data}'.format(data=data))
+        print data
         tokens = data.split(DELIMITER)
-        
+        sensor_data = SensorData(tokens)
+        # pprint(vars(sensor_data))
+        # pprint(vars(sensor_data.GpsData))
+
+        self.file.write_sensor_data(sensor_data)
