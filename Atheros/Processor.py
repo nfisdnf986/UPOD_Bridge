@@ -22,7 +22,7 @@ global queue
 
 BUFFSIZE = 1000
 queue = Queue.Queue(BUFFSIZE)
-
+DELIMITER = '#'
 
 class DataProcessor(threading.Thread):
     """
@@ -49,18 +49,11 @@ class DataProcessor(threading.Thread):
             self.process(data)
 
     def process(self, data):
+        # avoid processing empty data
+        if not data:
+            return
+
         # print 'Processing -->', data
         self.log.info('Processing {data}'.format(data=data))
-
-        # c = Parser.parse(data)
-
-        # print 'UTC Time:', c.Utc
-        # print 'Latitute:', c.Latitute
-        # print 'Longitude:', c.Longitude
-        # print 'FixQuality:', c.FixQuality
-        # print 'Satellites:', c.Satellites
-        # print 'Dilution:', c.Dilution
-        # print 'Altitude:', c.Altitude
-        # print 'Height:', c.Height
-        # print 'Since DGPS update:', c.DGPS_update
-        # print 'DGPS station Id:', c.DGPS_Id
+        tokens = data.split(DELIMITER)
+        
