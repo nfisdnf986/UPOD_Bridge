@@ -57,7 +57,8 @@ class DataProcessor(threading.Thread):
             
             # Stop gap fix for csv writer
             if not self.CsvFileCreated:
-                self.file = CsvWriter(datetime.fromtimestamp(float(data[0])).strftime('UPODXX%d%m%y.csv'))
+                self.file = CsvWriter(datetime.fromtimestamp(float(data[0])).
+                                      strftime('/mnt/sda1/UPODXX%d%m%y.csv'))
                 self.CsvFileCreated = True
 
             self.process(data)
