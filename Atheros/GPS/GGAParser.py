@@ -82,7 +82,8 @@ class GGAParser(object):
     def _get_DGPS_Id(self, data):
         pass
 
-    def parse(self, tokens):
+    def parse(self, gpsdata):
+        tokens = gpsdata.split(',')
         self.log.info(len(tokens))
         self.log.info('GGA parsing string = {data}'.format(data = tokens))
         self.Utc = self._get_utc(tokens[1])
