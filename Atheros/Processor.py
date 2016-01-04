@@ -57,8 +57,8 @@ class DataProcessor(threading.Thread):
             
             # Stop gap fix for csv writer
             if not self.CsvFileCreated:
-                self.file = CsvWriter(datetime.fromtimestamp(float(data[0])).
-                                      strftime('/mnt/sda1/UPODXX%d%m%y.csv'))
+                self.file = CsvWriter(datetime.fromtimestamp(float(data.split(DELIMITER)[0]))
+                                      .strftime('/mnt/sda1/UPODXX%d%m%y.csv'))
                 self.CsvFileCreated = True
 
             self.process(data)
@@ -69,7 +69,7 @@ class DataProcessor(threading.Thread):
             return
 
         log.info('Processing {data}'.format(data=data))
-        print data
+        # print data
         tokens = data.split(DELIMITER)
         sensor_data = SensorData(tokens)
         # pprint(vars(sensor_data))
