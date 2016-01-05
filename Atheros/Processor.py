@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 BUFFSIZE = 1000
 queue = Queue.Queue(BUFFSIZE)
 DELIMITER = '#'
-
+DATE_TIME = 0
 
 class DataProcessor(threading.Thread):
     """
@@ -70,10 +70,18 @@ class DataProcessor(threading.Thread):
         # Sync the time between Atheros and ATMega
         # UPODXX... xx has to be replaced with POD serial number
         if not self._file:
-            self._file = RotatingCsvWriter(datetime.fromtimestamp(float(tokens[0]))
+            dt = float(tokens[DATE_TIME])
+            # sychronize Atheros system clock with ATMega
+            sync_datetime(dt)
+            self._file = RotatingCsvWriter(datetime.fromtimestamp(dt)
                                              .strftime('/mnt/sda1/UPODXX%d%m%y.csv'))
 
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))
 
         self._file.write(sensor_data)
+
+    def sync_datetime(self, dt):
+        import os
+        # see if i need to set hardware clock or system clock
+        # os.system('date -s "{datetime}"'.format(datetime=dt))
