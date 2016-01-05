@@ -42,8 +42,7 @@ class DataProcessor(threading.Thread):
         self.name = name
         self.setDaemon(True)
         self.event = event
-        self.CsvFileCreated = False
-        self.file = None
+        self._file = None
 
     def run(self):
         # get data and process it
@@ -66,14 +65,15 @@ class DataProcessor(threading.Thread):
         tokens = data.split(DELIMITER)
         sensor_data = SensorData(tokens)
 
-        # Stop gap fix for csv writer
-        if not self.CsvFileCreated:
-            self.file = RotatingCsvWriter(datetime.fromtimestamp(float(tokens[0]))
-                                          .strftime('UPODXX%d%m%y.csv'))
-            self.CsvFileCreated = True
-
+        # if file not created then create it.
+        # Stop gap fix for date & time not set in Atheros
+        # Sync the time between Atheros and ATMega
+        # UPODXX... xx has to be replaced with POD serial number
+        if not self._file:
+            self._file = RotatingCsvWriter(datetime.fromtimestamp(float(tokens[0]))
+                                             .strftime('/mnt/sda1/UPODXX%d%m%y.csv'))
 
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))
 
-        self.file.write(sensor_data)
+        self._file.write(sensor_data)

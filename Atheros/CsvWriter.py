@@ -1,6 +1,8 @@
 """
 CsvWriter.py
 
+Plain Csv file writer and rotating csv file writer
+
 """
 
 __author__ = "Sunil"
@@ -78,6 +80,9 @@ class CsvWriter(object):
 
 
 class RotatingCsvWriter(CsvWriter):
+    """
+    Rotating csv file writer
+    """
     def __init__(self, filename):
         CsvWriter.__init__(self, filename)
         self.interval = 60 * 60 * 24 # one day
