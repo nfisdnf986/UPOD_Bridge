@@ -84,4 +84,4 @@ class DataProcessor(threading.Thread):
     def sync_datetime(self, dt):
         import os
         # see if i need to set hardware clock or system clock
-        # os.system('date -s "{datetime}"'.format(datetime=dt))
+        os.system('date -s "{datetime}"'.format(datetime=dt))
