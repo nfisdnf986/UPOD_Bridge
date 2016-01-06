@@ -14,8 +14,11 @@ __email__ = "suba5417@colorado.edu"
 import os
 import csv
 import time        
+import logging
 
 _MIDNIGHT = 24 * 60 * 60  # number of seconds in a day
+
+log = logging.getLogger(__name__)
 
 class CsvWriter(object):
     write_header = True
@@ -75,6 +78,8 @@ class CsvWriter(object):
                                   sensor.GpsData.FixQuality,
                                   sensor.GpsData.Altitude,
                                   sensor.GpsData.Satellites))
+        except Exception, e:
+            log.exception(e)
         finally:
             self.stream.flush()
 
