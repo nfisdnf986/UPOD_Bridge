@@ -10,6 +10,9 @@ __version__ = "0.0.0"
 __email__ = "suba5417@colorado.edu"
 
 import csv
+import logging
+
+log = logging.getLogger(__name__)
 
 class CsvWriter(object):
     write_header = True
@@ -63,5 +66,8 @@ class CsvWriter(object):
                             sensor.GpsData.FixQuality,
                             sensor.GpsData.Altitude,
                             sensor.GpsData.Satellites))
+        except Exception, e:
+            log.exception(e)
+            
         finally:
             self.file.flush()

@@ -59,8 +59,6 @@ class SensorData(object):
     def _get_gps_data(self, gps_data):
         if not gps_data:
             log.error('Gps data is empty. GPS signal is weak maybe!')
-            return None
-
         gps = Parser.parse(str(gps_data))
         return gps
 

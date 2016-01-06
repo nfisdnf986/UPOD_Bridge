@@ -85,6 +85,10 @@ class GGAParser(object):
     def parse(self, tokens):
         self.log.info(len(tokens))
         self.log.info('GGA parsing string = {data}'.format(data = tokens))
+
+        if len(tokens) < 14 or not tokens:
+            return self
+
         self.Utc = self._get_utc(tokens[1])
         self.Latitude = self._get_latitide(tokens[2], tokens[3])
         self.Longitude = self._get_longitude(tokens[4], tokens[5])
