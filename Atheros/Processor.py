@@ -18,7 +18,7 @@ import time
 
 from datetime import datetime
 from SensorData import SensorData
-from CsvWriter import CsvWriter
+from CsvWriter import RotatingCsvWriter
 # from pprint import pprint
 
 global queue
@@ -54,13 +54,6 @@ class DataProcessor(threading.Thread):
                 self.event.wait()
 
             data = queue.get()
-            
-            # Stop gap fix for csv writer
-            if not self.CsvFileCreated:
-                self.file = CsvWriter(datetime.fromtimestamp(float(data.split(DELIMITER)[0]))
-                                      .strftime('UPODXX%d%m%y.csv'))
-                self.CsvFileCreated = True
-
             self.process(data)
 
     def process(self, data):
@@ -72,7 +65,15 @@ class DataProcessor(threading.Thread):
         print data
         tokens = data.split(DELIMITER)
         sensor_data = SensorData(tokens)
+
+        # Stop gap fix for csv writer
+        if not self.CsvFileCreated:
+            self.file = RotatingCsvWriter(datetime.fromtimestamp(float(tokens[0]))
+                                          .strftime('UPODXX%d%m%y.csv'))
+            self.CsvFileCreated = True
+
+
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))
 
-        self.file.write_sensor_data(sensor_data)
+        self.file.write(sensor_data)
