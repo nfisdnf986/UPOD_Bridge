@@ -90,3 +90,6 @@ target/
 
 # Debug files
 *.dSYM/
+
+# BridgeClient tester file
+bridgeclient.py

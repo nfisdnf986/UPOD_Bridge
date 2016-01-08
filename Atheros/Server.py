@@ -33,11 +33,7 @@ from bridgeclient import BridgeClient as bridgeclient
 # print('Setting up logging module...')
 basepath = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
 
-logging.config.fileConfig('%s/logging.conf' % basepath,
-                          defaults = {'logfilename':
-                                      # server_Hour_minutes_day_month_year.log
-                                      datetime.now().strftime('server_%H_%M_%d_%m_%Y.log')
-                          })
+logging.config.fileConfig('%s/logging.conf' % basepath)
 
 log = logging.getLogger(__name__)
 
@@ -79,8 +75,8 @@ def main(*argv):
             # is different from that of previous data
 
             # Prevent duplicate data read on the bridgeclient before it's refeshed
-            if data == last_seen:
-                continue
+            # if data == last_seen:
+            #     continue
 
             queue.put(data)
             last_seen = data
