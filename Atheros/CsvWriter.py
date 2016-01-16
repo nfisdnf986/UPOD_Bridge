@@ -18,8 +18,6 @@ import logging
 
 _MIDNIGHT = 24 * 60 * 60  # number of seconds in a day
 
-log = logging.getLogger(__name__)
-
 class CsvWriter(object):
     write_header = True
     
@@ -36,6 +34,8 @@ class CsvWriter(object):
                        'Fix Quality', 'Altitude(meters above sea level)', 'Statellites')
         self.filename = filename
         self.stream = self._open()
+
+        log = logging.getLogger(__name__)
 
     def _open(self):
         stream = open(self.filename, 'a')
@@ -79,7 +79,7 @@ class CsvWriter(object):
                                   sensor.GpsData.Altitude,
                                   sensor.GpsData.Satellites))
         except Exception, e:
-            log.exception(e)
+            self.log.exception(e)
         finally:
             self.stream.flush()
 

@@ -83,10 +83,11 @@ class GGAParser(object):
         pass
 
     def parse(self, tokens):
-        self.log.info(len(tokens))
-        self.log.info('GGA parsing string = {data}'.format(data = tokens))
+        # self.log.info(len(tokens))
+        # self.log.info('GGA parsing string = {data}'.format(data = tokens))
 
         if len(tokens) < 14 or not tokens:
+            self.log.error('Not enough GPS tokens to parse! Got: {0} tokens'.format(len(tokens)))
             return self
 
         self.Utc = self._get_utc(tokens[1])

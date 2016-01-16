@@ -23,8 +23,6 @@ from CsvWriter import RotatingCsvWriter
 
 global queue
 
-log = logging.getLogger(__name__)
-
 
 BUFFSIZE = 1000
 queue = Queue.Queue(BUFFSIZE)
@@ -43,6 +41,7 @@ class DataProcessor(threading.Thread):
         self.setDaemon(True)
         self.event = event
         self._file = None
+        self.log = logging.getLogger(__name__)
 
     def run(self):
         # get data and process it
@@ -50,6 +49,7 @@ class DataProcessor(threading.Thread):
             # wait for the data to be put in queue
             # if queue is empty. Otherwise process queue
             if queue.empty():
+                # self.log.info('Waiting for data to be populated into the queue')
                 self.event.wait()
 
             data = queue.get()
@@ -58,10 +58,11 @@ class DataProcessor(threading.Thread):
     def process(self, data):
         # avoid processing empty data
         if not data:
+            self.log.error('Ignoring empty data processing')
             return
 
-        log.info('Processing {data}'.format(data=data))
-        print data
+        self.log.debug('Processing {data}'.format(data=data))
+
         tokens = data.split(DELIMITER)
         sensor_data = SensorData(tokens)
 
@@ -72,9 +73,10 @@ class DataProcessor(threading.Thread):
         if not self._file:
             dt = float(tokens[DATE_TIME])
             # sychronize Atheros system clock with ATMega
-            sync_datetime(dt)
-            self._file = RotatingCsvWriter(datetime.fromtimestamp(dt)
-                                             .strftime('/mnt/sda1/UPODXX%d%m%y.csv'))
+            self.sync_datetime(dt)
+            filename = datetime.fromtimestamp(dt).strftime('/mnt/sda1/UPODXX%d%m%y.csv')
+            self.log.info('Created file: {name}'.format(name=filename))
+            self._file = RotatingCsvWriter(filename)
 
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))
@@ -84,4 +86,6 @@ class DataProcessor(threading.Thread):
     def sync_datetime(self, dt):
         import os
         # see if i need to set hardware clock or system clock
-        os.system('date -s "{datetime}"'.format(datetime=dt))
+        fdt = datetime.fromtimestamp(dt).strftime('%Y-%m-%d %H:%M:%S')
+        self.log.info('Setting Atheros date time: {stamp}'.format(stamp=fdt))
+        os.system('date -s "{stamp}" > /dev/null 2>&1'.format(stamp=fdt))

@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 
 def signal_handler(signal, frame):
     """ clean up data on Signal interrupt """
+    log.info('Exiting Server on signal interrupt')
     sys.exit(0)
 
 def main(*argv):
@@ -56,13 +57,19 @@ def main(*argv):
     # setup data processing thread
     processor = DataProcessor(name='DataProcessor-Thread', event=event)
     processor.start()
+    log.info('Launched Data processor thread')
 
     # get communication channel to ATMega
-    channel = bridgeclient()    
+    channel = bridgeclient()   
+    
+    if not channel:
+        log.critical('unable to setup bridgeclient to ATMega!')
+        return
+
     # TODO: Explore BridgeClient code
     # Performance: keep the socket open while subsequent get(...) operations
     # By default BridgeClient open socket at begin of get(...) and closes after get(...)
-    # self.should_close_at_function_end = False
+    channel.should_close_at_function_end = False
 
     last_seen = ''
     # Get data from the Tx-channel and post it the queue
@@ -83,6 +90,7 @@ def main(*argv):
             event.set()
         except Exception, e:
             log.exception(e)
+            log.warning('Continue by ignoring the above exception!')
 
         time.sleep(.7)
 
