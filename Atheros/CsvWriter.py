@@ -28,9 +28,16 @@ class CsvWriter(object):
                        'ADC2 Channel-2(empty)', 'E2VO3 Heat(milliVolts)', 'E2VO3 Sens(milliVolts)',
                        'GPS Date', 'GPS Time(UTC)', 'Latitude','Longitude',
                        'Fix Quality', 'Altitude(meters above sea level)', 'Statellites')
+
+        import os
+        exists = os.path.exists(filename)
+
         self.file = open(filename, 'a')
         self.writer = csv.writer(self.file)
-        self.writer.writerow(self.header)
+
+        # write header if it's a new file
+        if not exists:
+            self.writer.writerow(self.header)
 
     def write_sensor_data(self, sensor):
         try:
@@ -66,8 +73,9 @@ class CsvWriter(object):
                             sensor.GpsData.FixQuality,
                             sensor.GpsData.Altitude,
                             sensor.GpsData.Satellites))
+            return True
         except Exception, e:
             log.exception(e)
-            
+            return False
         finally:
             self.file.flush()
