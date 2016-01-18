@@ -34,14 +34,21 @@ class CsvWriter(object):
                        'Fix Quality', 'Altitude(meters above sea level)', 'Statellites')
         self.filename = filename
         self.stream = self._open()
-
         log = logging.getLogger(__name__)
 
+
     def _open(self):
-        stream = open(self.filename, 'a')
-        writer = csv.writer(stream)
+      import os
+      exists = os.path.exists(self.filename)
+
+      stream = open(self.filename, 'a')
+      writer = csv.writer(stream)
+
+      # write header if it's a new file
+      if not exists:
         writer.writerow(self.header)
-        return stream
+
+      return stream
 
     def write(self, sensor):
         try:
@@ -78,8 +85,10 @@ class CsvWriter(object):
                                   sensor.GpsData.FixQuality,
                                   sensor.GpsData.Altitude,
                                   sensor.GpsData.Satellites))
+            return True
         except Exception, e:
-            self.log.exception(e)
+            log.exception(e)
+            return False
         finally:
             self.stream.flush()
 
@@ -114,9 +123,9 @@ class RotatingCsvWriter(CsvWriter):
         try:
             if self.should_roll_over(sensor):
                 self.do_roll_over()
-            CsvWriter.write(self, sensor)
+            return CsvWriter.write(self, sensor)
         except Exception, e:
-            print e
+            self.log.exception(e)
 
     def should_roll_over(self, sensor):
         """

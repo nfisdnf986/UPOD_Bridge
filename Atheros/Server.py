@@ -88,6 +88,7 @@ def main(*argv):
             queue.put(data)
             last_seen = data
             event.set()
+            channel.put('status', 'T')
         except Exception, e:
             log.exception(e)
             log.warning('Continue by ignoring the above exception!')

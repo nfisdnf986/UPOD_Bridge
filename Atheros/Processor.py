@@ -34,14 +34,16 @@ class DataProcessor(threading.Thread):
     Data processor
     """
     def __init__(self, group=None, target=None, name=None,
-                 args=(), kwargs=None, verbose=None, event=None):
+                 args=(), kwargs=None, verbose=None, event=None, bridge=None):
         super(DataProcessor,self).__init__()
         self.target = target
         self.name = name
         self.setDaemon(True)
         self.event = event
-        self._file = None
         self.log = logging.getLogger(__name__)
+        self.CsvFileCreated = False
+        self.file = None
+        self.channel = bridge
 
     def run(self):
         # get data and process it
@@ -80,8 +82,7 @@ class DataProcessor(threading.Thread):
 
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))
-
-        self._file.write(sensor_data)
+        status = self._file.write(sensor_data)
 
     def sync_datetime(self, dt):
         import os
