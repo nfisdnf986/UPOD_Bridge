@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# connect to arduino through ssh
+sshpass -p 'arduino' ssh root@arduino.local
