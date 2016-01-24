@@ -7,7 +7,7 @@ Parse the ATMega data string into converted Sensor data object
 __author__ = "Sunil, Drew Meyers"
 __copyright__ = "Copyright 2015, Arduino UPOD Project"
 __license__ = "MIT License"
-__version__ = "0.0.0"
+__version__ = "0.2.0"
 __email__ = "suba5417@colorado.edu, Drew.Meyers@colorado.edu"
 
 import logging
