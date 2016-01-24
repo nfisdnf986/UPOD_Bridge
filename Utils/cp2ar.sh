@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (C) 2016 Arduino UPOD
+# Author: Sunil <suba5417@colorado.edu>
 
 # copy the new python source files to the arduino
 
