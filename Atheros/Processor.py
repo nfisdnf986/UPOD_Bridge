@@ -7,7 +7,7 @@ Get data from the queue and process it.
 __author__ = "Sunil"
 __copyright__ = "Copyright 2015, Arduino UPOD Project"
 __license__ = "MIT License"
-__version__ = "0.0.0"
+__version__ = "0.2.0"
 __email__ = "suba5417@colorado.edu"
 
 

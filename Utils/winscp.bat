@@ -1,3 +1,7 @@
+:: Copyright (C) 2016 Arduino UPOD
+:: Version: 0.2.0
+:: Author: Sunil <suba5417@colorado.edu>
+
 @ECHO OFF
 
 ::

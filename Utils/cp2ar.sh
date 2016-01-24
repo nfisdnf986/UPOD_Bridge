@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright (C) 2016 Arduino UPOD
+# Version: 0.2.0
+# Author: Sunil <suba5417@colorado.edu>
+
 # copy the new python source files to the arduino
 
 # sshpass to copy without entering the pasword

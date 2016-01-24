@@ -1,4 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2016 Arduino UPOD
+# Version: 0.2.0
+# Author: Sunil <suba5417@colorado.edu>
+
 # connect to arduino through ssh
 sshpass -p 'arduino' ssh root@arduino.local
