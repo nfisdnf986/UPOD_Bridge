@@ -1,0 +1,26 @@
+<diagram program="umletino" version="14.1"><zoom_level>10</zoom_level><element><id>UMLDeployment</id><coordinates><x>20</x><y>40</y><w>500</w><h>250</h></coordinates><panel_attributes>&lt;&lt;device&gt;&gt;
+Arduino Yun</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>30</x><y>130</y><w>150</w><h>120</h></coordinates><panel_attributes>symbol=component
+ATMega</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>290</x><y>130</y><w>210</w><h>130</h></coordinates><panel_attributes>symbol=component
+Atheros</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>610</x><y>490</y><w>150</w><h>110</h></coordinates><panel_attributes>customelement=
+// Text Elemnt
+// DB Symbol
+drawArc(0,0,width,height*2/5,0,180,true) fg=black bg=#222222 //Parameters (x, y, width, height, start, extent, open)
+drawArc(0,0,width,height*2/5,180,180,true) fg=black //Parameters (x, y, width, height, start, extent, open)
+drawRectangle(0,(height+0.5)/5,width,(height-1.5)*3/5) lw=0.1 bg=#222222 //Parameters (x, y, width, height)
+drawLine(0,height/5,0,height*4/5)fg=black //Parameters (x1, y1, x2, y2) 
+drawLine(width,height/5,width,height*4/5)fg=black //Parameters (x1, y1, x2, y2) 
+drawArc(0,height*1/5,width,height*2/5,180,180,true) fg=black //Parameters (x, y, width, height, start, extent, open)
+drawArc(0,height*2/5,width,height*2/5,180,180,true) fg=black //Parameters (x, y, width, height, start, extent, open)
+drawArc(0,height*3/5,width,height*2/5,180,180,true)fg=black bg=#222222 //Parameters (x, y, width, height, start, extent, open)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>470</x><y>530</y><w>110</w><h>30</h></coordinates><panel_attributes>valign=center
+halign=center
+MongoDB</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>600</x><y>40</y><w>170</w><h>250</h></coordinates><panel_attributes>Storage Server</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>390</x><y>200</y><w>100</w><h>50</h></coordinates><panel_attributes>&lt;&lt;component&gt;&gt;
+Streaming
+client</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>170</x><y>160</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=..
+bridge 
+client</panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>40</x><y>200</y><w>100</w><h>40</h></coordinates><panel_attributes>&lt;&lt;components&gt;&gt;
+Sensors</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>610</x><y>190</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+Streaming
+Server</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>210</y><w>150</w><h>50</h></coordinates><panel_attributes>lt=&lt;..&gt;
+wifi
+streaming</panel_attributes><additional_attributes>10;20;130;20</additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>260</y><w>30</w><h>250</h></coordinates><panel_attributes>lt=&lt;..&gt;
+</panel_attributes><additional_attributes>10;230;10;10</additional_attributes></element></diagram>
