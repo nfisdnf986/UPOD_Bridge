@@ -147,10 +147,10 @@ class RotatingCsvWriter(CsvWriter):
 
         t = self.roll_over_at - self.interval
         timeTuple = time.localtime(t)
-        dfn = self.filename + "." + time.strftime(self.suffix, timeTuple)
-        if os.path.exists(dfn):
-            os.remove(dfn)
-        os.rename(self.filename, dfn)
+        #dfn = self.filename + "." + time.strftime(self.suffix, timeTuple)
+        #if os.path.exists(dfn):
+        #    os.remove(dfn)
+        #os.rename(self.filename, dfn)
         self.stream = self._open()
 
         currentTime = int(time.time())
