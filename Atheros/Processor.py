@@ -18,7 +18,7 @@ import time
 
 from datetime import datetime
 from SensorData import SensorData
-from CsvWriter import RotatingCsvWriter
+from TxtWriter import RotatingTxtWriter
 # from pprint import pprint
 
 global queue
@@ -41,7 +41,7 @@ class DataProcessor(threading.Thread):
         self.setDaemon(True)
         self.event = event
         self.log = logging.getLogger(__name__)
-        self.CsvFileCreated = False
+        self.TxtFileCreated = False
         self.file = None
         self.channel = bridge
 
@@ -76,9 +76,9 @@ class DataProcessor(threading.Thread):
             dt = float(tokens[DATE_TIME])
             # sychronize Atheros system clock with ATMega
             self.sync_datetime(dt)
-            filename = datetime.fromtimestamp(dt).strftime('/mnt/sda1/UPODXX%d%m%y.csv')
+            filename = datetime.fromtimestamp(dt).strftime('/mnt/sda1/UPODXX%d%m%y.Txt')
             self.log.info('Created file: {name}'.format(name=filename))
-            self._file = RotatingCsvWriter(filename)
+            self._file = RotatingTxtWriter(filename)
 
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))

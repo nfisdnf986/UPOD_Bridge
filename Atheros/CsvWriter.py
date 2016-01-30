@@ -1,7 +1,7 @@
 """
-CsvWriter.py
+TxtWriter.py
 
-Plain Csv file writer and rotating csv file writer
+Plain Txt file writer and rotating csv file writer
 
 """
 
@@ -18,7 +18,7 @@ import logging
 
 _MIDNIGHT = 24 * 60 * 60  # number of seconds in a day
 
-class CsvWriter(object):
+class TxtWriter(object):
     write_header = True
     
     def __init__(self, filename):
@@ -93,12 +93,12 @@ class CsvWriter(object):
             self.stream.flush()
 
 
-class RotatingCsvWriter(CsvWriter):
+class RotatingTxtWriter(TxtWriter):
     """
     Rotating csv file writer
     """
     def __init__(self, filename):
-        CsvWriter.__init__(self, filename)
+        TxtWriter.__init__(self, filename)
         self.interval = 60 * 60 * 24 # one day
         self.suffix = "%Y-%m-%d"
         t = int(time.time())
@@ -123,7 +123,7 @@ class RotatingCsvWriter(CsvWriter):
         try:
             if self.should_roll_over(sensor):
                 self.do_roll_over()
-            return CsvWriter.write(self, sensor)
+            return TxtWriter.write(self, sensor)
         except Exception, e:
             self.log.exception(e)
 
