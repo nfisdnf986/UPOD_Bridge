@@ -14,7 +14,8 @@ __email__ = "suba5417@colorado.edu"
 import os
 import csv
 import time        
-import logging
+import devices
+# import logging
 
 _MIDNIGHT = 24 * 60 * 60  # number of seconds in a day
 
@@ -22,6 +23,7 @@ class CsvWriter(object):
     write_header = True
     
     def __init__(self, filename):
+        # self.log = logging.getLogger(__name__)
         self.header = ('Rtc Date', 'Rtc Time', 'BMP Temp(C)', 'BMP Pres(mb)',
                        'SHT25 Temp(C)', 'SHT25 Humidity', 'CO2(ADC VAL)', 'Wind Speed(mph)',
                        'Wind Direction(deg)', 'Quad-Aux-1(microVolts)', 'Quad-Main-1(microVolts)',
@@ -33,17 +35,28 @@ class CsvWriter(object):
                        'GPS Date', 'GPS Time(UTC)', 'Latitude','Longitude',
                        'Fix Quality', 'Altitude(meters above sea level)', 'Statellites')
         self.filename = filename
-        self.stream = self._open()
-        log = logging.getLogger(__name__)
 
 
     def _open(self):
-      import os
-      exists = os.path.exists(self.filename)
+      # Fix this hard coded path for detecting the usb moubt
+      # use dmesg maybe
+      mp = devices.get_mount_points()
+      # last device mounted path
+      if mp and len(mp) > 0:
+        dev = mp[len(mp)-1][1]
+      else: dev = 'sda1'
 
-      stream = open(self.filename, 'a')
+      mountpath =  os.path.join(dev, 'arduino') #'{device}/arduino/'.format(device=dev)
+      mount =  os.path.join(mountpath, 'mount.txt')
+      upodfile = os.path.join(mountpath, self.filename)
+
+      if not os.path.exists(mount):
+        return None
+
+      exists = os.path.exists(upodfile)
+      stream = open(upodfile, 'a')
+
       writer = csv.writer(stream)
-
       # write header if it's a new file
       if not exists:
         writer.writerow(self.header)
@@ -51,8 +64,14 @@ class CsvWriter(object):
       return stream
 
     def write(self, sensor):
+        # If the sd card is not mounted then don't log
+        stream = self._open()
+
+        if not stream:
+          return False
+
         try:
-            writer = csv.writer(self.stream)
+            writer = csv.writer(stream)
             writer.writerow((sensor.RtcDate,
                                   sensor.RtcTime,
                                   sensor.BmpTemperature,
@@ -78,8 +97,8 @@ class CsvWriter(object):
                                   sensor.Adc2_Channel_2,
                                   sensor.E2VO3_Heat,
                                   sensor.E2VO3_Sens,
-                                  sensor.GpsData.UtcDate,
-                                  sensor.GpsData.UtcTime,
+                                  sensor.GpsData.Utc,
+                                  sensor.GpsData.Utc,
                                   sensor.GpsData.Latitude,
                                   sensor.GpsData.Longitude,
                                   sensor.GpsData.FixQuality,
@@ -87,10 +106,12 @@ class CsvWriter(object):
                                   sensor.GpsData.Satellites))
             return True
         except Exception, e:
-            log.exception(e)
+            #self.log.exception(e)
             return False
         finally:
-            self.stream.flush()
+            if stream:
+              stream.flush()
+              stream.close()
 
 
 class RotatingCsvWriter(CsvWriter):
@@ -125,7 +146,8 @@ class RotatingCsvWriter(CsvWriter):
                 self.do_roll_over()
             return CsvWriter.write(self, sensor)
         except Exception, e:
-            self.log.exception(e)
+            pass
+            #self.log.exception(e)
 
     def should_roll_over(self, sensor):
         """

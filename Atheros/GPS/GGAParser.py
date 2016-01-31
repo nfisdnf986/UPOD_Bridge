@@ -11,14 +11,15 @@ __version__ = "0.2.0"
 __email__ = "suba5417@colorado.edu"
 
 
-import logging
+import datetime
+# import logging
 
 class GGAParser(object):
     """ 
     Global Positioning System Fix Data
     """
     def __init__(self):
-        self.log = logging.getLogger(__name__)
+        # self.log = logging.getLogger(__name__)
         # Fix taken at UTC
         self.UtcDate = None
         self.UtcTime = None
@@ -53,7 +54,19 @@ class GGAParser(object):
         self.DGPS_Id = None
 
     def _get_utc(self, data):
-        return data
+        if not data:
+            return data
+
+        time = int(data)
+        sec = time % 100
+        time = int(time/100)
+        mins = time % 100
+        time = int(time/100)
+        hrs = time % 100
+        return '{0}:{1}:{2}'.format(hrs, mins, sec)
+        # self.UtcTime = datetime.datetime.fromtimestamp(data).strftime('%Y-%m-%d')
+        # self.UtcDate = datetime.datetime.fromtimestamp(data).strftime('%H:%M:%S')
+        # return data
 
     def _get_latitide(self, data, direction):
         return data + " "+ direction
@@ -85,10 +98,9 @@ class GGAParser(object):
     def parse(self, tokens):
         # self.log.info(len(tokens))
         # self.log.info('GGA parsing string = {data}'.format(data = tokens))
-
-        if len(tokens) < 14 or not tokens:
-            self.log.error('Not enough GPS tokens to parse! Got: {0} tokens'.format(len(tokens)))
-            return self
+        if not tokens or len(tokens) < 14:
+            # self.log.error('Not enough GPS tokens to parse! Got: {0} tokens'.format(len(tokens)))
+            return
 
         self.Utc = self._get_utc(tokens[1])
         self.Latitude = self._get_latitide(tokens[2], tokens[3])
