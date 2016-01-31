@@ -22,5 +22,3 @@ def get_mount_points(devices=None):
         return [(info.split()[0], info.split()[2]) for info in usb_info]
     except Exception:
         pass
-    # if __name__ == '__main__':
-    # print get_mount_points()
