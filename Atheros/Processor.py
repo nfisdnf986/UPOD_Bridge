@@ -13,12 +13,13 @@ __email__ = "suba5417@colorado.edu"
 
 import Queue
 import threading
-import logging
+# import logging
 import time
 
 from datetime import datetime
 from SensorData import SensorData
 from CsvWriter import RotatingCsvWriter
+from CsvWriter import CsvWriter
 # from pprint import pprint
 
 global queue
@@ -40,12 +41,12 @@ class DataProcessor(threading.Thread):
         self.name = name
         self.setDaemon(True)
         self.event = event
-        self.log = logging.getLogger(__name__)
+        # self.log = logging.getLogger(__name__)
         self.CsvFileCreated = False
-        self.file = None
+        self._file = None
         self.channel = bridge
 
-    def run(self):
+    def run(self):        
         # get data and process it
         while True:
             # wait for the data to be put in queue
@@ -60,10 +61,10 @@ class DataProcessor(threading.Thread):
     def process(self, data):
         # avoid processing empty data
         if not data:
-            self.log.error('Ignoring empty data processing')
+            # self.log.error('Ignoring empty data processing')
             return
 
-        self.log.debug('Processing {data}'.format(data=data))
+        # self.log.debug('Processing {data}'.format(data=data))
 
         tokens = data.split(DELIMITER)
         sensor_data = SensorData(tokens)
@@ -76,17 +77,22 @@ class DataProcessor(threading.Thread):
             dt = float(tokens[DATE_TIME])
             # sychronize Atheros system clock with ATMega
             self.sync_datetime(dt)
-            filename = datetime.fromtimestamp(dt).strftime('/mnt/sda1/UPODXX%d%m%y.csv')
-            self.log.info('Created file: {name}'.format(name=filename))
-            self._file = RotatingCsvWriter(filename)
+            filename = datetime.fromtimestamp(dt).strftime('UPODXX%d%m%y.csv')
+            # self.log.info('Created file: {name}'.format(name=filename))
+            self._file = CsvWriter(filename)
 
         # pprint(vars(sensor_data))
         # pprint(vars(sensor_data.GpsData))
-        status = self._file.write(sensor_data)
-
+        print data
+        status = False
+        while not status:
+            status = self._file.write(sensor_data)
+            print status
+            # self.channel.put('status', 'T' if status else 'F')
+        
     def sync_datetime(self, dt):
         import os
         # see if i need to set hardware clock or system clock
         fdt = datetime.fromtimestamp(dt).strftime('%Y-%m-%d %H:%M:%S')
-        self.log.info('Setting Atheros date time: {stamp}'.format(stamp=fdt))
+        # self.log.info('Setting Atheros date time: {stamp}'.format(stamp=fdt))
         os.system('date -s "{stamp}" > /dev/null 2>&1'.format(stamp=fdt))
