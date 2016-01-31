@@ -18,6 +18,7 @@ import os
 # import path
 sys.path.insert(0, '/usr/lib/python2.7/bridge')  
 
+import devices
 import Queue
 import time
 import signal
@@ -40,7 +41,7 @@ log = logging.getLogger(__name__)
 
 def signal_handler(signal, frame):
     """ clean up data on Signal interrupt """
-    log.info('Exiting Server on signal interrupt')
+    # log.info('Exiting Server on signal interrupt')
     sys.exit(0)
 
 def main(*argv):
@@ -49,21 +50,22 @@ def main(*argv):
 
     # install signal handler
     signal.signal(signal.SIGINT, signal_handler)
-    log.info('Installed signal handler')
+    # log.info('Installed signal handler')
 
     # setup event for thread synchronization
     event = threading.Event()
 
-    # setup data processing thread
-    processor = DataProcessor(name='DataProcessor-Thread', event=event)
-    processor.start()
-    log.info('Launched Data processor thread')
-
     # get communication channel to ATMega
-    channel = bridgeclient()   
+    channel = bridgeclient()
+
+    # setup data processing thread
+    processor = DataProcessor(name='DataProcessor-Thread', event=event, bridge=channel)
+    processor.start()
+    # log.info('Launched Data processor thread')
+
     
     if not channel:
-        log.critical('unable to setup bridgeclient to ATMega!')
+        # log.critical('unable to setup bridgeclient to ATMega!')
         return
 
     # TODO: Explore BridgeClient code
@@ -77,21 +79,29 @@ def main(*argv):
         try:
             data = channel.get('TX-channel')
 
+            mp = devices.get_mount_points()
+            status = 'F'
+            if len(mp) > 0:
+                status = 'T'
+
+            channel.put('status', status)
             # Time stamp is a part of data contract between
             # ATMega and Atheros. This makes sure that data
             # is different from that of previous data
 
             # Prevent duplicate data read on the bridgeclient before it's refeshed
             if data == last_seen:
-                 continue
+                continue
 
             queue.put(data)
             last_seen = data
             event.set()
-            channel.put('status', 'T')
         except Exception, e:
-            log.exception(e)
-            log.warning('Continue by ignoring the above exception!')
+            # log.exception(e)
+            # log.warning('Continue by ignoring the above exception!')
+            # try to re-initialize the ATMega communication channel
+            channel = bridgeclient()
+            processor.channel = channel
 
         time.sleep(.7)
 

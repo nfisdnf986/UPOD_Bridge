@@ -10,12 +10,12 @@ __license__ = "MIT License"
 __version__ = "0.2.0"
 __email__ = "suba5417@colorado.edu, Drew.Meyers@colorado.edu"
 
-import logging
+# import logging
 import datetime
 
 from GPS import Parser
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
 
 MILLIVOLTS_PER_BIT = .1875
 
@@ -58,20 +58,21 @@ class SensorData(object):
 
     def _get_gps_data(self, gps_data):
         if not gps_data:
-            log.error('Gps data is empty. GPS signal is weak maybe!')
+            pass
+            # log.error('Gps data is empty. GPS signal is weak maybe!')
         gps = Parser.parse(str(gps_data))
         return gps
 
     def _get_QuatStat_value(self, data):
         if not data:
-            log.error('QuatStat value is empty')
+            # log.error('QuatStat value is empty')
             return None
 
         return float(data)
 
     def _get_ADC_value(self, data):
         if not data:
-            log.error('ADC value is empty!')
+            # log.error('ADC value is empty!')
             return None
 
         return float(data) * MILLIVOLTS_PER_BIT
@@ -86,18 +87,20 @@ class SensorData(object):
         # The following table is ADC readings for the wind direction sensor output, sorted from low to high.
 	# Each threshold is the midpoint between adjacent headings. The output is degrees for that ADC reading.
 	# Note that these are not in compass degree order! See Weather Meters datasheet for more information.
+        if not WindDirectionToken:
+            return None
         adc = int(WindDirectionToken)
         if adc < 380:
             return 113
         if adc < 393:
             return 68
-	if adc < 414:
+        if adc < 414:
             return 90
 	if adc < 456:
             return 158
 	if adc < 508:
             return 135
-	if adc < 551:
+    	if adc < 551:
             return 203
 	if adc < 615:
             return 180

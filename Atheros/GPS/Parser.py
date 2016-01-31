@@ -14,7 +14,7 @@ import logging
 
 from GGAParser import GGAParser
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
 
 class Parser(object):
     @staticmethod
@@ -24,7 +24,7 @@ class Parser(object):
         id = tokens[0]
 
         if not id:
-            return None
+            return GGAParser()
 
         if id == '$GPGGA':
             gga = GGAParser()
